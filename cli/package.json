@@ -1,0 +1,26 @@
+{
+  "name": "@ld-demo/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ld-demo": "./dist/index.js"
+  },
+  "scripts": {
+    "cli": "tsx src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@launchdarkly/node-server-sdk": "^9.7.1",
+    "chalk": "^5.4.1",
+    "commander": "^13.0.0",
+    "dotenv": "^17.2.3",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

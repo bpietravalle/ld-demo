@@ -1,0 +1,25 @@
+{
+  "name": "ld-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -- turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "kill:dev": "lsof -ti:3000,3001 | xargs kill -9 2>/dev/null || true",
+    "cli": "dotenv -- pnpm --filter @ld-demo/cli run cli",
+    "ngrok": "./scripts/ngrok.sh"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
