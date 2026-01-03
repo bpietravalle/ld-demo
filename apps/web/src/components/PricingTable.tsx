@@ -1,5 +1,19 @@
 import { useFlags } from "launchdarkly-react-client-sdk";
 
+/**
+ * PricingTable - Demonstrates context-based targeting
+ *
+ * Required LaunchDarkly setup:
+ * 1. Create flag: "show-enterprise-tier" (Boolean type)
+ *
+ * 2. Add targeting rule:
+ *    - If context attribute "betaTester" is "true" → serve true
+ *    - Default rule → serve false
+ *
+ * The DevPanel component lets you switch between user contexts
+ * to see how targeting rules affect flag evaluation.
+ */
+
 interface PricingTier {
   name: string;
   price: string;
@@ -44,10 +58,11 @@ const TIERS: PricingTier[] = [
 ];
 
 export function PricingTable() {
+  // Flag key: "show-enterprise-tier" → converted to showEnterpriseTier by React SDK
   const { showEnterpriseTier } = useFlags();
 
   const visibleTiers = TIERS.filter(
-    (tier) => !tier.enterprise || showEnterpriseTier
+    (tier) => !tier.enterprise || showEnterpriseTier,
   );
 
   return (

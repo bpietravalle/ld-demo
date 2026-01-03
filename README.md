@@ -1,6 +1,6 @@
 # LaunchDarkly Demo
 
-Sample application demonstrating LaunchDarkly feature flags, targeting, experimentation, and AI configs.
+Sample application demonstrating LaunchDarkly feature flags, targeting, experimentation, and AI configs. Includes a CLI for toggling flags and inspecting LD resources directly from the terminal during demos.
 
 ## Prerequisites
 
@@ -46,9 +46,53 @@ NGROK_DOMAIN=your-domain.ngrok-free.app
 # WEB_PORT=3000
 ```
 
+## LaunchDarkly Setup
+
+Before running the demo, create these resources in your LaunchDarkly project:
+
+### Feature Flags
+
+| Flag Key               | Type    | Variations                                    |
+| ---------------------- | ------- | --------------------------------------------- |
+| `enhanced-hero`        | Boolean | true / false                                  |
+| `show-enterprise-tier` | Boolean | true / false (add targeting rule: betaTester) |
+| `hero-cta-text`        | String  | "Get Started", "Try Free", "Start Now"        |
+| `landing-chatbot`      | Boolean | true / false                                  |
+
+### Targeting Rules
+
+For `show-enterprise-tier`, add a targeting rule:
+
+- **If** `betaTester` **is** `true` → serve `true`
+- **Default** → serve `false`
+
+### Experiments (Optional)
+
+1. Create a metric `hero-cta-click` (Custom, Conversion)
+2. Create experiment `hero-cta-test` using `hero-cta-text` flag
+3. Attach the `hero-cta-click` metric to the experiment
+
+### AI Config (Optional)
+
+Create an AI Config named `landing-chatbot-config` with:
+
+- Model: `gpt-4o-mini` (or your preferred model)
+- System prompt: Your chatbot personality/instructions
+
+## Environment Assumptions
+
+- **OS**: macOS, Linux, or WSL (Windows Subsystem for Linux)
+- **Node.js**: v20+ (`node --version` to check)
+- **pnpm**: v9+ (`pnpm --version` to check; install with `npm install -g pnpm`)
+- **Terminal**: Any bash-compatible shell
+- **Ports**: 3000 (web) and 3001 (api) available
+
 ## Running the Demo
 
 ```bash
+# Verify environment is configured
+pnpm cli preflight
+
 # Start development servers
 pnpm dev
 
@@ -58,6 +102,8 @@ pnpm dev
 See **[Demo Runbook](./docs/demo-runbook.md)** for step-by-step walkthrough.
 
 ## CLI
+
+The CLI uses the [LaunchDarkly REST API](https://apidocs.launchdarkly.com/) to manage flags and inspect resources without leaving the terminal. Useful for live demos where you want to toggle flags while presenting.
 
 ```bash
 pnpm cli preflight              # Validate environment setup

@@ -4,6 +4,14 @@ import { asyncWithLDProvider } from "launchdarkly-react-client-sdk";
 import App from "./App";
 import "./index.css";
 
+/**
+ * LaunchDarkly Client-side ID
+ *
+ * Where to find: LaunchDarkly Dashboard → Settings → Environments → [Your Environment]
+ * The Client-side ID is safe to expose in browser code (it's not a secret).
+ *
+ * Set this in your .env file as: VITE_LD_CLIENT_ID=your-client-side-id
+ */
 const clientSideID = import.meta.env.VITE_LD_CLIENT_ID;
 
 if (!clientSideID) {

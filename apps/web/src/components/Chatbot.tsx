@@ -97,9 +97,7 @@ export function Chatbot() {
             </div>
             <div>
               <div className="font-semibold text-white">AI Assistant</div>
-              <div className="text-xs text-white/70">
-                Powered by LD Demo
-              </div>
+              <div className="text-xs text-white/70">Powered by LD Demo</div>
             </div>
           </div>
         </div>

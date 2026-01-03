@@ -1,3 +1,16 @@
+/**
+ * LaunchDarkly Node Server SDK Client
+ *
+ * This module initializes the server-side SDK for flag evaluation.
+ *
+ * Required setup:
+ * 1. Set LD_SDK_KEY in your .env file
+ *    Where to find: LaunchDarkly Dashboard → Settings → Environments → [Your Environment]
+ *    Click "SDK Key" to reveal the server-side SDK key (starts with "sdk-")
+ *
+ * Note: The SDK key is a secret and should never be exposed in client-side code.
+ * For browser/client apps, use the Client-side ID instead.
+ */
 import LaunchDarkly, { LDClient } from "@launchdarkly/node-server-sdk";
 
 let ldClient: LDClient | null = null;
@@ -5,6 +18,7 @@ let ldClient: LDClient | null = null;
 export async function initLDClient(): Promise<LDClient> {
   if (ldClient) return ldClient;
 
+  // SDK key from environment - keep this secret!
   const sdkKey = process.env.LD_SDK_KEY;
   if (!sdkKey) {
     throw new Error("LD_SDK_KEY environment variable is required");

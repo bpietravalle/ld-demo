@@ -1,13 +1,28 @@
 import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 
+/**
+ * HeroCTA - Demonstrates multivariate flags and experimentation
+ *
+ * Required LaunchDarkly setup:
+ * 1. Create flag: "hero-cta-text" (String type)
+ *    - Variations: "Get Started", "Try Free", "Start Now" (or your own)
+ *    - This flag key maps to `heroCtaText` via useCamelCaseFlagKeys option
+ *
+ * 2. (Optional) For experimentation:
+ *    - Create metric: "hero-cta-click" (Custom, Conversion type)
+ *    - Create experiment using the hero-cta-text flag
+ *    - Attach the metric to measure click-through rates
+ */
 export function HeroCTA() {
+  // Flag key: "hero-cta-text" → converted to heroCtaText by React SDK
   const { heroCtaText } = useFlags();
   const ldClient = useLDClient();
 
   const handleClick = () => {
-    // Track the click event for experimentation
-    ldClient?.track("hero-cta-clicked");
-    console.log("CTA clicked, event tracked:", "hero-cta-clicked");
+    // Track click event for experimentation metrics
+    // Metric key must match what's configured in LaunchDarkly
+    ldClient?.track("hero-cta-click");
+    console.log("CTA clicked, event tracked:", "hero-cta-click");
   };
 
   // Default fallback if flag not set
