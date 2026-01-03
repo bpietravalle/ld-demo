@@ -14,7 +14,7 @@ Sample application demonstrating LaunchDarkly feature flags, targeting, experime
 
 ```bash
 # Clone and install
-git clone <repo-url>
+git clone git@github.com:bpietravalle/ld-demo.git
 cd ld-demo
 pnpm install
 

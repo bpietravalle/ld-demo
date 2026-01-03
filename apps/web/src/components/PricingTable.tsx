@@ -47,7 +47,7 @@ export function PricingTable() {
   const { showEnterpriseTier } = useFlags();
 
   const visibleTiers = TIERS.filter(
-    (tier) => !tier.enterprise || showEnterpriseTier,
+    (tier) => !tier.enterprise || showEnterpriseTier
   );
 
   return (
@@ -61,7 +61,7 @@ export function PricingTable() {
           <p className="text-slate-500 max-w-md mx-auto">
             {showEnterpriseTier
               ? "You have access to all tiers including Enterprise!"
-              : "Upgrade to Pro or become a beta tester to see Enterprise pricing."}
+              : "Upgrade or become a beta tester to see Enterprise pricing."}
           </p>
         </div>
 

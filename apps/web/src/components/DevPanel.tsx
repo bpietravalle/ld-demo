@@ -9,12 +9,12 @@ interface MockUser {
 }
 
 const MOCK_USERS: MockUser[] = [
-  { key: "anonymous", name: "Anonymous", plan: "free", betaTester: false },
-  { key: "user-regular", name: "Regular User", plan: "free", betaTester: false },
-  { key: "user-beta", name: "Beta Tester", plan: "enterprise", betaTester: true },
-  { key: "user-alice", name: "Alice", plan: "free", betaTester: false },
-  { key: "user-bob", name: "Bob", plan: "pro", betaTester: false },
-  { key: "user-charlie", name: "Charlie", plan: "enterprise", betaTester: true },
+  { key: "anon-visitor", name: "Anonymous", plan: "free", betaTester: false },
+  { key: "free-abc123", name: "Free User", plan: "free", betaTester: false },
+  { key: "pro-xyz789", name: "Pro User", plan: "pro", betaTester: false },
+  { key: "ent-demo-42", name: "Enterprise User", plan: "enterprise", betaTester: true },
+  { key: "beta-tester-a", name: "Beta Tester 1", plan: "enterprise", betaTester: true },
+  { key: "qz-beta-99", name: "Beta Tester 2", plan: "enterprise", betaTester: true },
 ];
 
 export function DevPanel() {

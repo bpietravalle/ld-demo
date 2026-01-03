@@ -60,24 +60,24 @@ Environment: test
 
 1. **Show current state**
 
-   - Browser: Standard hero visible (simple styling)
-   - Point out: "This is what users currently see"
+    - Browser: Standard hero visible (simple styling)
+    - Point out: "This is what users currently see"
 
 2. **Release the feature**
 
-   ```bash
-   pnpm cli flags toggle enhanced-hero --on
-   ```
+    ```bash
+    pnpm cli flags toggle enhanced-hero --on
+    ```
 
-   - Browser: Hero changes **instantly** (gradient background, enhanced styling)
-   - No page reload needed!
+    - Browser: Hero changes **instantly** (gradient background, enhanced styling)
+    - No page reload needed!
 
 3. **Simulate rollback**
-   - "A user reports an issue with the new hero..."
-   ```bash
-   pnpm cli flags toggle enhanced-hero --off
-   ```
-   - Browser: Reverts **instantly**
+    - "A user reports an issue with the new hero..."
+    ```bash
+    pnpm cli flags toggle enhanced-hero --off
+    ```
+    - Browser: Reverts **instantly**
 
 ---
 
@@ -89,26 +89,26 @@ Environment: test
 
 1. **Show Dev Panel**
 
-   - Click ⚙ gear icon (bottom-left) to open Dev Panel
-   - Shows current user context and active flags
-   - Three user options: Anonymous, Regular User, Beta Tester
+    - Click ⚙ gear icon (bottom-left) to open Dev Panel
+    - Shows current user context and active flags
+    - Six user options: Anonymous, Free/Pro/Enterprise Users, Beta Testers
 
 2. **Enable targeting flag**
 
-   ```bash
-   pnpm cli flags toggle show-enterprise-tier --on
-   ```
+    ```bash
+    pnpm cli flags toggle show-enterprise-tier --on
+    ```
 
 3. **Demonstrate targeting**
 
-   - Click **"Anonymous"** → Pricing shows 2 tiers (Free, Pro)
-   - Click **"Beta Tester"** → Enterprise tier appears!
-   - Click **"Regular User"** → Enterprise tier disappears
+    - Click **"Anonymous"** or **"Free User"** → Pricing shows 2 tiers (Free, Pro)
+    - Click **"Beta Tester 1"** → Enterprise tier appears!
+    - Click **"Free User"** → Enterprise tier disappears
 
 4. **See the rule** (LD Console)
-   - Open `show-enterprise-tier` flag in LD dashboard
-   - Show targeting rule: `betaTester is true` → serve `true`
-   - Default serves `false`
+    - Open `show-enterprise-tier` flag in LD dashboard
+    - Show targeting rule: `betaTester is true` → serve `true`
+    - Default serves `false`
 
 ---
 
@@ -120,25 +120,25 @@ Environment: test
 
 1. **Enable experiment flag**
 
-   ```bash
-   pnpm cli flags toggle hero-cta-text --on
-   ```
+    ```bash
+    pnpm cli flags toggle hero-cta-text --on
+    ```
 
 2. **Show variations**
 
-   - Switch between users in Dev Panel (⚙ bottom-left)
-   - CTA button text changes: "Get Started", "Try Free", or "Start Now"
+    - Switch between users in Dev Panel (⚙ bottom-left)
+    - CTA button text changes: "Get Started", "Try Free", or "Start Now"
 
 3. **Demonstrate tracking**
 
-   - Click the CTA button
-   - Open browser DevTools → Network tab
-   - Show event being sent to LaunchDarkly
+    - Click the CTA button
+    - Open browser DevTools → Network tab
+    - Show event being sent to LaunchDarkly
 
 4. **Show metrics** (LD Console)
-   - Open Experiments in LD dashboard
-   - Show `hero-cta-test` experiment
-   - Point out: conversion tracking, statistical analysis
+    - Open Experiments in LD dashboard
+    - Show `hero-cta-test` experiment
+    - Point out: conversion tracking, statistical analysis
 
 ---
 
@@ -150,27 +150,26 @@ Environment: test
 
 1. **Enable chatbot**
 
-   ```bash
-   pnpm cli flags toggle landing-chatbot --on
-   ```
+    ```bash
+    pnpm cli flags toggle landing-chatbot --on
+    ```
 
-   - Chat bubble appears in bottom-right corner
+    - Chat bubble appears in bottom-right corner
 
 2. **Test the chatbot**
 
-   - Click chat bubble
-   - Send: "What is this demo about?"
-   - Receive AI response
+    - Click chat bubble
+    - Send: "What is this demo about?"
+    - Receive AI response
 
 3. **Show AI config** (LD Console)
 
-   - Open `landing-chatbot-config` in LD dashboard
-   - Show: model selection, system prompt
+    - Open `landing-chatbot-config` in LD dashboard
+    - Show: model selection, system prompt
 
 4. **Live prompt change** (optional)
-   - In LD dashboard, modify the system prompt
-   - Add: "Always mention LaunchDarkly in your responses."
-   - Send new message → response reflects new behavior
+    - In LD dashboard, modify the system prompt
+    - Send new message → response reflects new behavior
 
 ---
 
@@ -189,33 +188,33 @@ pnpm ngrok
 
 1. **Show webhook endpoint**
 
-   - Point to Terminal 1 (API server logs)
+    - Point to Terminal 1 (API server logs)
 
 2. **Toggle a flag**
 
-   ```bash
-   pnpm cli flags toggle enhanced-hero
-   ```
+    ```bash
+    pnpm cli flags toggle enhanced-hero
+    ```
 
 3. **Show webhook event**
 
-   - API console shows:
+    - API console shows:
 
-   ```
-   ============================================================
-   [timestamp] 🚩 LaunchDarkly Webhook Event
-   ============================================================
-   Action: updateOn
-   Resource: proj/default:env/test:flag/enhanced-hero
-   Changed by: your@email.com
-   ============================================================
-   ```
+    ```
+    ============================================================
+    [timestamp] 🚩 LaunchDarkly Webhook Event
+    ============================================================
+    Action: updateOn
+    Resource: proj/default:env/test:flag/enhanced-hero
+    Changed by: your@email.com
+    ============================================================
+    ```
 
 4. **Use cases**
-   - Audit logging
-   - Trigger downstream systems
-   - Sync with external tools
-   - Alert on critical flag changes
+    - Audit logging
+    - Trigger downstream systems
+    - Sync with external tools
+    - Alert on critical flag changes
 
 ---
 
