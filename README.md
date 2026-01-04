@@ -38,7 +38,7 @@ LD_ENVIRONMENT_KEY=test
 OPENAI_API_KEY=sk-xxx
 
 # Webhooks (get free static domain from https://dashboard.ngrok.com/domains)
-NGROK_DOMAIN=your-domain.ngrok-free.app
+NGROK_DOMAIN=https://your-domain.ngrok-free.app
 # DEBUG_WEBHOOKS=false  # Set to true for verbose payload logging
 
 # Ports (optional, defaults: API=3001, Web=3000)
