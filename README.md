@@ -4,11 +4,16 @@ Sample application demonstrating LaunchDarkly feature flags, targeting, experime
 
 ## Prerequisites
 
+**Required:**
+
 - Node.js 20+
 - pnpm 9+
 - [LaunchDarkly account](https://launchdarkly.com/start-trial/)
-- [OpenAI API key](https://platform.openai.com/api-keys) (for AI chatbot)
-- [ngrok account](https://dashboard.ngrok.com) (for webhook integration)
+
+**Optional:**
+
+- [OpenAI API key](https://platform.openai.com/api-keys) - for AI chatbot demo (Part 4)
+- [ngrok account](https://dashboard.ngrok.com) - for webhook demo (Part 5)
 
 ## Getting Started
 
@@ -52,25 +57,61 @@ Before running the demo, create these resources in your LaunchDarkly project:
 
 ### Feature Flags
 
-| Flag Key               | Type    | Variations                                    |
-| ---------------------- | ------- | --------------------------------------------- |
-| `enhanced-hero`        | Boolean | true / false                                  |
-| `show-enterprise-tier` | Boolean | true / false (add targeting rule: betaTester) |
-| `hero-cta-text`        | String  | "Get Started", "Try Free", "Start Now"        |
-| `landing-chatbot`      | Boolean | true / false                                  |
+| Flag Key                    | Type    | Variations                                 |
+| --------------------------- | ------- | ------------------------------------------ |
+| `enhanced-hero`             | Boolean | true / false                               |
+| `show-enterprise-tier`      | Boolean | true / false (prerequisite: enhanced-hero) |
+| `hero-cta-text`             | String  | "Get Started", "Try Free", "Start Now"     |
+| `landing-chatbot`           | Boolean | true / false                               |
+| `discount-percentage`       | Number  | 0, 10, 15, 25                              |
+| `theme-config`              | JSON    | See variations below                       |
+| `mobile-optimized-checkout` | Boolean | true / false                               |
+
+**theme-config variations:**
+
+```json
+{"mode": "light", "accent": "blue", "borderRadius": "md"}
+{"mode": "dark", "accent": "purple", "borderRadius": "lg"}
+{"mode": "light", "accent": "green", "borderRadius": "sm"}
+```
+
+### Context Kinds
+
+The demo uses multi-context targeting with three context kinds:
+
+| Context        | Key Attributes                                 |
+| -------------- | ---------------------------------------------- |
+| `user`         | key, name, plan, betaTester, visits, purchases |
+| `device`       | key, deviceType (mobile/desktop/tablet), os    |
+| `organization` | key, orgName, industry, employees, plan        |
+
+### Segments
+
+Create these segments for advanced targeting demos:
+
+| Segment           | Context | Rule                           |
+| ----------------- | ------- | ------------------------------ |
+| `power-users`     | user    | visits > 100 OR purchases > 10 |
+| `enterprise-orgs` | org     | plan = "enterprise"            |
 
 ### Targeting Rules
 
-For `show-enterprise-tier`, add a targeting rule:
+For `show-enterprise-tier`:
 
-- **If** `betaTester` **is** `true` → serve `true`
+- Add **prerequisite**: `enhanced-hero` must be `true`
+- Add targeting rule: **If** `user.betaTester` **is** `true` → serve `true`
 - **Default** → serve `false`
+
+For segment-based targeting (optional):
+
+- `theme-config`: **If** user in segment `power-users` → serve dark purple theme
+- `show-enterprise-tier`: **If** org in segment `enterprise-orgs` → serve `true`
 
 ### Experiments (Optional)
 
-1. Create a metric `hero-cta-click` (Custom, Conversion)
+1. Create a metric `hero-cta-clicked` (Custom, Conversion, event key: `hero-cta-clicked`)
 2. Create experiment `hero-cta-test` using `hero-cta-text` flag
-3. Attach the `hero-cta-click` metric to the experiment
+3. Attach the `hero-cta-clicked` metric to the experiment
 
 ### AI Config (Optional)
 
@@ -99,31 +140,36 @@ pnpm dev
 # Open http://localhost:3000
 ```
 
+### DevPanel
+
+Click the gear icon (bottom-left) to open the DevPanel. Simulates different contexts without real authentication:
+
+| Section      | Options                                                   |
+| ------------ | --------------------------------------------------------- |
+| User         | Anonymous, Free, Pro, Power User, Enterprise, Beta Tester |
+| Device       | Desktop, iPhone, Android, iPad                            |
+| Organization | TechStartup, GrowthCorp, MegaCorp                         |
+
+**Flag Evaluations** shows current values with reasons: `DEFAULT`, `TARGET`, `RULE`, `PREREQ`, `OFF`
+
+Switching contexts calls `identify()` and updates flags in real-time.
+
 See **[Demo Runbook](./docs/demo-runbook.md)** for step-by-step walkthrough.
 
 ## CLI
 
-The CLI uses the [LaunchDarkly REST API](https://apidocs.launchdarkly.com/) to manage flags and inspect resources without leaving the terminal. Useful for live demos where you want to toggle flags while presenting.
+Manage flags via [REST API](https://apidocs.launchdarkly.com/) without leaving the terminal.
 
 ```bash
-pnpm cli preflight              # Validate environment setup
+pnpm cli preflight                        # Validate env setup
 
-# Flags
-pnpm cli flags list             # List all flags with state
-pnpm cli flags show <flag>      # Show flag details with variations
-pnpm cli flags toggle <flag>    # Toggle a flag on/off
+pnpm cli flags list                       # All flags with state
+pnpm cli flags show <key>                 # Flag details + variations
+pnpm cli flags toggle <key> [--on|--off]  # Toggle flag
 
-# Experiments
-pnpm cli experiments list       # List all experiments
-pnpm cli experiments show <key> # Show experiment details
-
-# Metrics
-pnpm cli metrics list           # List all metrics
-pnpm cli metrics show <key>     # Show metric details
-
-# AI Configs (Beta)
-pnpm cli ai list                # List AI configs
-pnpm cli ai show <key>          # Show AI config details
+pnpm cli experiments list|show <key>      # Experiments
+pnpm cli metrics list|show <key>          # Metrics
+pnpm cli ai list|show <key>               # AI Configs
 ```
 
 ## Webhook Integration

@@ -1,14 +1,16 @@
 import { useFlags } from "launchdarkly-react-client-sdk";
 
 /**
- * PricingTable - Demonstrates context-based targeting
+ * PricingTable - Demonstrates context-based targeting and numeric flags
  *
  * Required LaunchDarkly setup:
  * 1. Create flag: "show-enterprise-tier" (Boolean type)
- *
- * 2. Add targeting rule:
  *    - If context attribute "betaTester" is "true" → serve true
  *    - Default rule → serve false
+ *
+ * 2. Create flag: "discount-percentage" (Number type - multivariate)
+ *    - Variations: 0, 10, 20, 25 (whole numbers)
+ *    - Use targeting rules to serve different discounts to different users
  *
  * The DevPanel component lets you switch between user contexts
  * to see how targeting rules affect flag evaluation.
@@ -16,7 +18,7 @@ import { useFlags } from "launchdarkly-react-client-sdk";
 
 interface PricingTier {
   name: string;
-  price: string;
+  price: number | "Custom"; // Base price in dollars (or "Custom" for enterprise)
   description: string;
   features: string[];
   highlighted?: boolean;
@@ -26,13 +28,13 @@ interface PricingTier {
 const TIERS: PricingTier[] = [
   {
     name: "Free",
-    price: "$0",
+    price: 0,
     description: "Perfect for getting started",
     features: ["5 projects", "Basic analytics", "Community support"],
   },
   {
     name: "Pro",
-    price: "$29",
+    price: 29,
     description: "For growing teams",
     features: [
       "Unlimited projects",
@@ -57,9 +59,38 @@ const TIERS: PricingTier[] = [
   },
 ];
 
+/**
+ * Helper to format price with optional discount
+ */
+function formatPrice(
+  basePrice: number | "Custom",
+  discountPercent: number,
+): { display: string; original?: string; savings?: string } {
+  if (basePrice === "Custom") {
+    return { display: "Custom" };
+  }
+
+  if (basePrice === 0 || discountPercent === 0) {
+    return { display: `$${basePrice}` };
+  }
+
+  const discounted = Math.round(basePrice * (1 - discountPercent / 100));
+  return {
+    display: `$${discounted}`,
+    original: `$${basePrice}`,
+    savings: `${discountPercent}% off`,
+  };
+}
+
 export function PricingTable() {
-  // Flag key: "show-enterprise-tier" → converted to showEnterpriseTier by React SDK
-  const { showEnterpriseTier } = useFlags();
+  // Flag keys are converted to camelCase by React SDK:
+  // "show-enterprise-tier" → showEnterpriseTier
+  // "discount-percentage" → discountPercentage
+  const { showEnterpriseTier, discountPercentage } = useFlags();
+
+  // Ensure discountPercentage is a valid number (default to 0 if not)
+  const discount =
+    typeof discountPercentage === "number" ? discountPercentage : 0;
 
   const visibleTiers = TIERS.filter(
     (tier) => !tier.enterprise || showEnterpriseTier,
@@ -68,6 +99,16 @@ export function PricingTable() {
   return (
     <section className="py-20 px-8 bg-slate-50">
       <div className="max-w-6xl mx-auto">
+        {/* Discount Banner */}
+        {discount > 0 && (
+          <div className="mb-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 text-center shadow-lg shadow-green-500/20">
+            <span className="text-lg font-bold">🎉 Special Offer!</span>
+            <span className="ml-2">
+              Save {discount}% on all paid plans today!
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-800 mb-3">
@@ -126,14 +167,31 @@ export function PricingTable() {
               <p className="text-sm text-slate-500 mb-4">{tier.description}</p>
 
               {/* Price */}
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-slate-800">
-                  {tier.price}
-                </span>
-                {tier.price !== "Custom" && (
-                  <span className="text-slate-500 ml-1">/month</span>
-                )}
-              </div>
+              {(() => {
+                const priceInfo = formatPrice(tier.price, discount);
+                return (
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-slate-800">
+                        {priceInfo.display}
+                      </span>
+                      {priceInfo.display !== "Custom" && (
+                        <span className="text-slate-500">/month</span>
+                      )}
+                    </div>
+                    {priceInfo.original && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-sm text-slate-400 line-through">
+                          {priceInfo.original}/month
+                        </span>
+                        <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                          {priceInfo.savings}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Features */}
               <ul className="space-y-3 mb-8 flex-1">

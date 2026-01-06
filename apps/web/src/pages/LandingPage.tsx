@@ -6,6 +6,7 @@ import { EnhancedHero } from "../components/landing/EnhancedHero";
 import { PricingTable } from "../components/PricingTable";
 import { Chatbot } from "../components/Chatbot";
 import { DevPanel } from "../components/DevPanel";
+import { MobileCheckoutBanner } from "../components/MobileCheckoutBanner";
 import { ToastContainer } from "../components/Toast";
 import { useFlagChangeToast } from "../hooks/useFlagChangeToast";
 
@@ -37,6 +38,7 @@ export function LandingPage() {
       {/* Floating Elements */}
       <Chatbot />
       <DevPanel />
+      <MobileCheckoutBanner />
       <ToastContainer messages={toasts} onDismiss={dismissToast} />
     </>
   );
