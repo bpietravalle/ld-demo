@@ -21,10 +21,33 @@ if (!clientSideID) {
 (async () => {
   const LDProvider = await asyncWithLDProvider({
     clientSideID: clientSideID || "",
+    // Multi-context: user + device + organization
     context: {
-      kind: "user",
-      key: "anonymous",
-      anonymous: true,
+      kind: "multi",
+      user: {
+        key: "anon-visitor",
+        name: "Anonymous",
+        plan: "free",
+        betaTester: false,
+        visits: 1,
+        purchases: 0,
+      },
+      device: {
+        key: "desktop-chrome",
+        deviceType: "desktop",
+        os: "macOS",
+      },
+      organization: {
+        key: "org-startup-abc",
+        orgName: "TechStartup Inc",
+        industry: "technology",
+        employees: 15,
+        plan: "startup",
+      },
+    },
+    options: {
+      // Required for variationDetail() to return evaluation reasons
+      evaluationReasons: true,
     },
     reactOptions: {
       useCamelCaseFlagKeys: true,
