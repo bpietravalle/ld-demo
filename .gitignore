@@ -1,5 +1,7 @@
 # Logs
 logs
+tmp.html
+.DS_Store
 *.log
 .claude
 .serena

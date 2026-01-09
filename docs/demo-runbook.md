@@ -2,25 +2,50 @@
 
 Step-by-step guide for demonstrating LaunchDarkly features.
 
-**First-time setup:** See [README.md](../README.md) for installation and LaunchDarkly configuration.
+> **First-time setup?** Complete the [README](../README.md) setup first, then return here.
 
 ---
 
-## Before Each Demo
+## Start the Demo
 
 ```bash
 # Terminal 1: Start the app
 pnpm dev
 
-# Terminal 2: CLI commands (keep open)
-# Terminal 3: ngrok for webhooks (optional)
+# Terminal 2: Keep open for CLI commands
 ```
 
 Open http://localhost:3000 in browser.
 
 ---
 
-## 0. Reset: CLI Setup
+## DevPanel Overview
+
+The DevPanel lets you simulate different users, devices, and organizations without real authentication. **Open it before starting the demo.**
+
+<table>
+  <tr>
+    <td><img src=".assets/dev-panel-icon.png" width="300" alt="DevPanel icon location"/></td>
+    <td><img src=".assets/dev-panel-open.png" width="250" alt="DevPanel open"/></td>
+  </tr>
+  <tr>
+    <td><em>Click gear icon (bottom-left)</em></td>
+    <td><em>Panel shows contexts + flag values</em></td>
+  </tr>
+</table>
+
+**Sections:**
+
+| Section              | Purpose                                | Options                                                   |
+| -------------------- | -------------------------------------- | --------------------------------------------------------- |
+| User Context         | Simulate different users               | Anonymous, Free, Pro, Power User, Enterprise, Beta Tester |
+| Organization Context | Test org-based targeting               | TechStartup, GrowthCorp, MegaCorp                         |
+| Device Context       | Simulate mobile/desktop/tablet         | Desktop, iPhone, Android, iPad                            |
+| Flag Evaluations     | See current flag values + reason codes | Shows why each flag has its value                         |
+
+---
+
+## 0. Reset All Flags
 
 Verify environment and reset all flags to OFF:
 
@@ -28,36 +53,11 @@ Verify environment and reset all flags to OFF:
 # Verify environment is configured
 pnpm cli preflight
 
-# List all flags with current state
-pnpm cli flags list
-
-# Reset core flags to OFF
-pnpm cli flags toggle enhanced-hero --off
-pnpm cli flags toggle show-enterprise-tier --off
-pnpm cli flags toggle hero-cta-text --off
-pnpm cli flags toggle landing-chatbot --off
-
-# Reset additional flags (if created)
-pnpm cli flags toggle discount-percentage --off
-pnpm cli flags toggle theme-config --off
-pnpm cli flags toggle mobile-optimized-checkout --off
+# Reset ALL flags to OFF (skips flags already off)
+pnpm cli flags toggle --all --off
 
 # Verify all OFF
 pnpm cli flags list
-```
-
-Expected output:
-
-```
-Environment: test
-
-○ enhanced-hero               boolean    OFF
-○ show-enterprise-tier        boolean    OFF
-○ hero-cta-text               string     OFF
-○ landing-chatbot             boolean    OFF
-○ discount-percentage         number     OFF    (if created)
-○ theme-config                json       OFF    (if created)
-○ mobile-optimized-checkout   boolean    OFF    (if created)
 ```
 
 ---
@@ -66,28 +66,30 @@ Environment: test
 
 **Goal:** Demonstrate instant feature toggle without deploy or page reload.
 
-### Demo Steps
+### Steps
 
-1. **Show current state**
+1. **Observe current state**
 
-   - Browser: Standard hero visible (simple styling)
-   - Point out: "This is what users currently see"
+    - Browser: Standard hero visible (simple styling)
+    - DevPanel: `enhancedHero` shows `OFF`
 
 2. **Release the feature**
 
-   ```bash
-   pnpm cli flags toggle enhanced-hero --on
-   ```
+    ```bash
+    pnpm cli flags toggle enhanced-hero --on
+    ```
 
-   - Browser: Hero changes **instantly** (gradient background, enhanced styling)
-   - No page reload needed!
+    - Browser: Hero changes **instantly** (gradient background, enhanced styling)
+    - No page reload needed!
 
-3. **Simulate rollback**
-   - "A user reports an issue with the new hero..."
-   ```bash
-   pnpm cli flags toggle enhanced-hero --off
-   ```
-   - Browser: Reverts **instantly**
+3. **Rollback the feature**
+
+    ```bash
+    pnpm cli flags toggle enhanced-hero --off
+    ```
+
+    - Browser: Reverts **instantly** (no reload needed)
+    - DevPanel: `enhancedHero` shows `OFF` again
 
 ---
 
@@ -95,50 +97,40 @@ Environment: test
 
 **Goal:** Show context-based feature targeting with user, device, and organization attributes.
 
-### Demo Steps
+### Steps
 
-1. **Show DevPanel**
+1. **Enable targeting flag**
 
-   - Click gear icon (bottom-left) to open DevPanel
-   - Explain the three context sections:
-     - **User**: 6 mock users (Anonymous, Free, Pro, Power User, Enterprise, Beta Tester)
-     - **Device**: 4 devices (Desktop, iPhone, Android, iPad)
-     - **Organization**: 3 orgs (TechStartup, GrowthCorp, MegaCorp)
-   - Point out **Flag Evaluations** section showing values + reasons
+    ```bash
+    pnpm cli flags toggle show-enterprise-tier --on
+    ```
 
-2. **Enable targeting flag**
+2. **Demonstrate user targeting**
 
-   ```bash
-   pnpm cli flags toggle show-enterprise-tier --on
-   ```
+    - In DevPanel, click **"Anonymous"** or **"Free User"** → Pricing shows 2 tiers (Free, Pro)
+    - Click **"Beta Tester"** → Enterprise tier appears!
+    - DevPanel: `showEnterpriseTier` shows `TARGET` or `RULE` reason
+    - Click **"Free User"** → Enterprise tier disappears
 
-3. **Demonstrate user targeting**
+3. **Demonstrate prerequisite** (if configured)
 
-   - Click **"Anonymous"** or **"Free User"** → Pricing shows 2 tiers (Free, Pro)
-   - Click **"Beta Tester"** → Enterprise tier appears!
-   - Check DevPanel: `showEnterpriseTier` shows `TARGET` or `RULE` reason
-   - Click **"Free User"** → Enterprise tier disappears
+    ```bash
+    pnpm cli flags toggle enhanced-hero --off
+    ```
 
-4. **Demonstrate prerequisite** (if configured)
+    - Even with `show-enterprise-tier` ON, enterprise tier disappears
+    - DevPanel: `showEnterpriseTier` shows `PREREQ` reason
+    - Turn `enhanced-hero` back ON → enterprise tier returns
 
-   ```bash
-   pnpm cli flags toggle enhanced-hero --off
-   ```
+4. **Demonstrate multi-context targeting** (optional)
 
-   - Even with `show-enterprise-tier` ON, enterprise tier disappears
-   - Check DevPanel: `showEnterpriseTier` shows `PREREQ` reason
-   - Turn `enhanced-hero` back ON → enterprise tier returns
+    - Switch to **"MegaCorp"** organization → if segment rule configured, enterprise tier shows
+    - Switch to **"iPhone"** device → if `mobile-optimized-checkout` has device rule, banner appears
 
-5. **Demonstrate multi-context targeting** (optional)
-
-   - Switch to **"MegaCorp"** organization → if segment rule configured, enterprise tier shows
-   - Switch to **"iPhone"** device → if `mobile-optimized-checkout` has device rule, banner appears
-
-6. **See the rules** (LD Console)
-   - Open `show-enterprise-tier` flag in LD dashboard
-   - Show prerequisite: `enhanced-hero` must be ON
-   - Show targeting rule: `user.betaTester is true` → serve `true`
-   - Default serves `false`
+5. **See the rules** (LD Console)
+    - Open `show-enterprise-tier` flag in LD dashboard
+    - Show prerequisite: `enhanced-hero` must be ON
+    - Show targeting rule: `user.betaTester is true` → serve `true`
 
 ---
 
@@ -146,29 +138,29 @@ Environment: test
 
 **Goal:** Show A/B testing with event tracking.
 
-### Demo Steps
+### Steps
 
 1. **Enable experiment flag**
 
-   ```bash
-   pnpm cli flags toggle hero-cta-text --on
-   ```
+    ```bash
+    pnpm cli flags toggle hero-cta-text --on
+    ```
 
 2. **Show variations**
 
-   - Switch between users in DevPanel
-   - CTA button text changes: "Get Started", "Try Free", or "Start Now"
+    - Switch between users in DevPanel
+    - CTA button text changes: "Get Started", "Try Free", or "Start Now"
 
 3. **Demonstrate tracking**
 
-   - Click the CTA button
-   - Open browser DevTools → Network tab
-   - Show event being sent to LaunchDarkly
+    - Click the CTA button
+    - Open browser DevTools → Network tab
+    - Show event being sent to LaunchDarkly
 
 4. **Show metrics** (LD Console)
-   - Open Experiments in LD dashboard
-   - Show `hero-cta-test` experiment
-   - Point out: conversion tracking, statistical analysis
+    - Open Experiments in LD dashboard
+    - Show `hero-cta-test` experiment
+    - Point out: conversion tracking, statistical analysis
 
 ---
 
@@ -176,75 +168,78 @@ Environment: test
 
 **Goal:** Demonstrate dynamic AI behavior without code deploy.
 
-### Demo Steps
+### Steps
 
 1. **Enable chatbot**
 
-   ```bash
-   pnpm cli flags toggle landing-chatbot --on
-   ```
+    ```bash
+    pnpm cli flags toggle landing-chatbot --on
+    ```
 
-   - Chat bubble appears in bottom-right corner
+    - Chat bubble appears in bottom-right corner
 
 2. **Test the chatbot**
 
-   - Click chat bubble
-   - Send: "What is this demo about?"
-   - Receive AI response
+    - Click chat bubble
+    - Send: "What is this demo about?"
+    - Receive AI response
 
 3. **Show AI config** (LD Console)
 
-   - Open `landing-chatbot-config` in LD dashboard
-   - Show: model selection, system prompt
+    - Open `landing-chatbot-config` in LD dashboard
+    - Show: model selection, system prompt
 
 4. **Live prompt change** (optional)
-   - In LD dashboard, modify the system prompt
-   - Send new message → response reflects new behavior
+    - In LD dashboard, modify the system prompt
+    - Send new message → response reflects new behavior
 
 ---
 
-## Part 5: Integrations (Webhooks)
+## Part 5: Webhooks
 
 **Goal:** Show event-driven architecture with flag change notifications.
 
-### Setup (if not already running)
+### Setup
 
-```bash
-# Terminal 3: Start ngrok tunnel
-pnpm ngrok
-```
+1. **Start ngrok tunnel** (requires `NGROK_DOMAIN` in .env)
 
-### Demo Steps
+    ```bash
+    # Terminal 3
+    pnpm ngrok
+    ```
 
-1. **Show webhook endpoint**
+2. **Configure webhook in LaunchDarkly**
 
-   - Point to Terminal 1 (API server logs)
+    - Go to LD Console → **Integrations** → **Webhooks** → **Add integration**
+    - URL: `https://your-domain.ngrok-free.app/ld-webhook`
+    - Select events to listen for (e.g., flag changes)
+    - Save the integration
 
-2. **Toggle a flag**
+### Steps
 
-   ```bash
-   pnpm cli flags toggle enhanced-hero
-   ```
+1. **Toggle a flag**
 
-3. **Show webhook event**
+    ```bash
+    pnpm cli flags toggle enhanced-hero
+    ```
 
-   - API console shows:
+2. **Show webhook event** in Terminal 1 (API server logs):
 
-   ```
-   ============================================================
-   [timestamp] LaunchDarkly Webhook Event
-   ============================================================
-   Action: updateOn
-   Resource: proj/default:env/test:flag/enhanced-hero
-   Changed by: your@email.com
-   ============================================================
-   ```
+    ```
+    ============================================================
+    [timestamp] LaunchDarkly Webhook Event
+    ============================================================
+    Action: updateOn
+    Resource: proj/default:env/test:flag/enhanced-hero
+    Changed by: your@email.com
+    ============================================================
+    ```
 
-4. **Use cases**
-   - Audit logging
-   - Trigger downstream systems
-   - Sync with external tools
-   - Alert on critical flag changes
+3. **Use cases**
+    - Audit logging
+    - Trigger downstream systems
+    - Sync with external tools
+    - Alert on critical flag changes
 
 ---
 
@@ -284,7 +279,9 @@ pnpm cli flags toggle mobile-optimized-checkout --on
 
 ---
 
-## Quick Reference
+## Reference
+
+### Flag Summary
 
 | Part | Flag                        | Type    | What It Shows                    |
 | ---- | --------------------------- | ------- | -------------------------------- |
@@ -303,19 +300,32 @@ The DevPanel shows WHY each flag evaluated to its value:
 
 | Reason    | Meaning                                     |
 | --------- | ------------------------------------------- |
+| `OFF`     | Flag is turned off                          |
 | `DEFAULT` | Fell through to default rule                |
 | `TARGET`  | Matched individual user targeting           |
 | `RULE`    | Matched a targeting rule (shows rule index) |
 | `PREREQ`  | Prerequisite flag not satisfied             |
-| `OFF`     | Flag is turned off                          |
 
 ### CLI Commands
 
 ```bash
-pnpm cli flags list|show|toggle <key> [--on|--off]
-pnpm cli experiments list|show <key>
-pnpm cli metrics list|show <key>
-pnpm cli ai list|show <key>
+# Environment
+pnpm cli preflight                        # Validate env setup
+
+# Flags
+pnpm cli flags list                       # All flags with state
+pnpm cli flags show <key>                 # Flag details + variations
+pnpm cli flags toggle <key> [--on|--off]  # Toggle single flag
+pnpm cli flags toggle --all --off         # Turn all flags OFF
+pnpm cli flags toggle --all --on          # Turn all flags ON
+
+# Resources
+pnpm cli experiments list                 # List experiments
+pnpm cli experiments show <key>           # Experiment details
+pnpm cli metrics list                     # List metrics
+pnpm cli metrics show <key>               # Metric details
+pnpm cli ai list                          # List AI configs
+pnpm cli ai show <key>                    # AI config details
 ```
 
 ---
@@ -323,14 +333,5 @@ pnpm cli ai list|show <key>
 ## Reset
 
 ```bash
-# Core demo flags
-pnpm cli flags toggle enhanced-hero --off
-pnpm cli flags toggle show-enterprise-tier --off
-pnpm cli flags toggle hero-cta-text --off
-pnpm cli flags toggle landing-chatbot --off
-
-# Additional flags (if created)
-pnpm cli flags toggle discount-percentage --off
-pnpm cli flags toggle theme-config --off
-pnpm cli flags toggle mobile-optimized-checkout --off
+pnpm cli flags toggle --all --off
 ```

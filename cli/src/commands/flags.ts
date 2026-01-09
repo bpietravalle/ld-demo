@@ -5,7 +5,7 @@ import { getApiConfig, listFlags, toggleFlag, getFlag } from "../lib/api.js";
 
 export const flagsCommand = new Command("flags").description(
   "Manage feature flags",
-);
+);;
 
 // List all flags
 flagsCommand
@@ -55,18 +55,74 @@ flagsCommand
 
 // Toggle a flag on/off
 flagsCommand
-  .command("toggle <flagKey>")
+  .command("toggle [flagKey]")
   .description("Toggle a flag on or off")
   .option("--on", "Turn the flag on")
   .option("--off", "Turn the flag off")
-  .action(async (flagKey: string, options: { on?: boolean; off?: boolean }) => {
-    // Determine target state
-    let turnOn: boolean;
+  .option("--all", "Toggle all flags (requires --on or --off)")
+  .action(async (flagKey: string | undefined, options: { on?: boolean; off?: boolean; all?: boolean }) => {
+    const { environmentKey } = getApiConfig();
 
+    // Validate options
     if (options.on && options.off) {
       console.error(chalk.red("Cannot specify both --on and --off"));
       process.exit(1);
     }
+
+    if (options.all && !options.on && !options.off) {
+      console.error(chalk.red("--all requires --on or --off (cannot auto-toggle all flags)"));
+      process.exit(1);
+    }
+
+    if (!options.all && !flagKey) {
+      console.error(chalk.red("Flag key required (or use --all with --on/--off)"));
+      process.exit(1);
+    }
+
+    // Handle --all
+    if (options.all) {
+      const turnOn = options.on ?? false;
+      const spinner = ora(`Fetching all flags...`).start();
+
+      try {
+        const flags = await listFlags();
+        spinner.succeed(`Found ${flags.length} flags`);
+
+        let changed = 0;
+        let skipped = 0;
+
+        for (const flag of flags) {
+          const currentState = flag.environments?.[environmentKey]?.on ?? false;
+
+          if (currentState === turnOn) {
+            console.log(chalk.gray(`  ○ ${flag.key} already ${turnOn ? "ON" : "OFF"}`));
+            skipped++;
+            continue;
+          }
+
+          const flagSpinner = ora(`  Toggling ${flag.key}...`).start();
+          try {
+            await toggleFlag(flag.key, turnOn);
+            const state = turnOn ? chalk.green("ON") : chalk.red("OFF");
+            flagSpinner.succeed(`  ${flag.key} → ${state}`);
+            changed++;
+          } catch (error) {
+            flagSpinner.fail(`  ${flag.key} failed: ${String(error)}`);
+          }
+        }
+
+        console.log();
+        console.log(chalk.bold(`Done: ${changed} changed, ${skipped} already ${turnOn ? "ON" : "OFF"}`));
+      } catch (error) {
+        spinner.fail("Failed to fetch flags");
+        console.error(chalk.red(String(error)));
+        process.exit(1);
+      }
+      return;
+    }
+
+    // Handle single flag toggle
+    let turnOn: boolean;
 
     if (options.on) {
       turnOn = true;
@@ -76,7 +132,6 @@ flagsCommand
       // Auto-toggle: get current state and flip it
       const spinner = ora("Checking current state...").start();
       try {
-        const { environmentKey } = getApiConfig();
         const flags = await listFlags();
         const flag = flags.find((f) => f.key === flagKey);
 
@@ -102,7 +157,7 @@ flagsCommand
     ).start();
 
     try {
-      await toggleFlag(flagKey, turnOn);
+      await toggleFlag(flagKey!, turnOn);
       const state = turnOn ? chalk.green("ON") : chalk.red("OFF");
       spinner.succeed(`${chalk.bold(flagKey)} is now ${state}`);
     } catch (error) {

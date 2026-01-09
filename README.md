@@ -1,6 +1,6 @@
 # LaunchDarkly Demo
 
-Sample application demonstrating LaunchDarkly feature flags, targeting, experimentation, and AI configs. Includes a CLI for toggling flags and inspecting LD resources directly from the terminal during demos.
+Sample application demonstrating LaunchDarkly feature flags, targeting, experimentation, and AI configs.
 
 ## Prerequisites
 
@@ -12,18 +12,22 @@ Sample application demonstrating LaunchDarkly feature flags, targeting, experime
 
 **Optional:**
 
-- [OpenAI API key](https://platform.openai.com/api-keys) - for AI chatbot demo (Part 4)
-- [ngrok account](https://dashboard.ngrok.com) - for webhook demo (Part 5)
+- [OpenAI API key](https://platform.openai.com/api-keys) - for AI chatbot demo
+- [ngrok account](https://dashboard.ngrok.com) - for webhook demo
 
-## Getting Started
+## Quick Start
+
+### 1. Clone and Install
 
 ```bash
-# Clone and install
 git clone git@github.com:bpietravalle/ld-demo.git
 cd ld-demo
 pnpm install
+```
 
-# Configure environment
+### 2. Configure Environment
+
+```bash
 cp .env.example .env
 ```
 
@@ -39,21 +43,42 @@ LD_API_TOKEN=api-xxx-xxx
 LD_PROJECT_KEY=default
 LD_ENVIRONMENT_KEY=test
 
-# OpenAI (for AI chatbot)
+# OpenAI (optional - for AI chatbot)
 OPENAI_API_KEY=sk-xxx
 
-# Webhooks (get free static domain from https://dashboard.ngrok.com/domains)
+# Webhooks (optional - get domain from https://dashboard.ngrok.com/domains)
 NGROK_DOMAIN=https://your-domain.ngrok-free.app
-# DEBUG_WEBHOOKS=false  # Set to true for verbose payload logging
-
-# Ports (optional, defaults: API=3001, Web=3000)
-# API_PORT=3001
-# WEB_PORT=3000
 ```
 
-## LaunchDarkly Setup
+### 3. Configure LaunchDarkly
 
-Before running the demo, create these resources in your LaunchDarkly project:
+Create the required resources in your LaunchDarkly project. See [LaunchDarkly Configuration](#launchdarkly-configuration) below.
+
+### 4. Verify Setup
+
+```bash
+pnpm cli preflight
+```
+
+Expected output:
+
+```
+✔ Environment variables configured
+  LD_SDK_KEY: ✓
+  VITE_LD_CLIENT_ID: ✓
+  LD_API_TOKEN: ✓
+  ...
+```
+
+### 5. Ready!
+
+Setup complete. See **[Demo Runbook](./docs/demo-runbook.md)** for step-by-step walkthrough.
+
+---
+
+## LaunchDarkly Configuration
+
+Create these resources in your LaunchDarkly project before running the demo.
 
 ### Feature Flags
 
@@ -120,67 +145,7 @@ Create an AI Config named `landing-chatbot-config` with:
 - Model: `gpt-4o-mini` (or your preferred model)
 - System prompt: Your chatbot personality/instructions
 
-## Environment Assumptions
-
-- **OS**: macOS, Linux, or WSL (Windows Subsystem for Linux)
-- **Node.js**: v20+ (`node --version` to check)
-- **pnpm**: v9+ (`pnpm --version` to check; install with `npm install -g pnpm`)
-- **Terminal**: Any bash-compatible shell
-- **Ports**: 3000 (web) and 3001 (api) available
-
-## Running the Demo
-
-```bash
-# Verify environment is configured
-pnpm cli preflight
-
-# Start development servers
-pnpm dev
-
-# Open http://localhost:3000
-```
-
-### DevPanel
-
-Click the gear icon (bottom-left) to open the DevPanel. Simulates different contexts without real authentication:
-
-| Section      | Options                                                   |
-| ------------ | --------------------------------------------------------- |
-| User         | Anonymous, Free, Pro, Power User, Enterprise, Beta Tester |
-| Device       | Desktop, iPhone, Android, iPad                            |
-| Organization | TechStartup, GrowthCorp, MegaCorp                         |
-
-**Flag Evaluations** shows current values with reasons: `DEFAULT`, `TARGET`, `RULE`, `PREREQ`, `OFF`
-
-Switching contexts calls `identify()` and updates flags in real-time.
-
-See **[Demo Runbook](./docs/demo-runbook.md)** for step-by-step walkthrough.
-
-## CLI
-
-Manage flags via [REST API](https://apidocs.launchdarkly.com/) without leaving the terminal.
-
-```bash
-pnpm cli preflight                        # Validate env setup
-
-pnpm cli flags list                       # All flags with state
-pnpm cli flags show <key>                 # Flag details + variations
-pnpm cli flags toggle <key> [--on|--off]  # Toggle flag
-
-pnpm cli experiments list|show <key>      # Experiments
-pnpm cli metrics list|show <key>          # Metrics
-pnpm cli ai list|show <key>               # AI Configs
-```
-
-## Webhook Integration
-
-```bash
-# Start ngrok tunnel (requires NGROK_DOMAIN in .env)
-pnpm ngrok
-
-# Configure webhook in LD: Integrations → Webhooks
-# URL: https://your-domain.ngrok-free.app/ld-webhook
-```
+---
 
 ## Project Structure
 
@@ -189,9 +154,9 @@ ld-demo/
 ├── apps/
 │   ├── api/          # Express server (Node SDK, AI SDK)
 │   └── web/          # React + Vite (React SDK)
-├── cli/              # CLI tools
+├── cli/              # CLI tools for flag management
 ├── scripts/          # Utility scripts
-└── docs/             # Documentation
+└── docs/             # Demo runbook
 ```
 
 ## Scripts
@@ -200,7 +165,15 @@ ld-demo/
 pnpm dev           # Start all dev servers
 pnpm build         # Build all packages
 pnpm typecheck     # Type checking
-pnpm cli <cmd>     # Run CLI commands
-pnpm ngrok         # Start ngrok tunnel
+pnpm cli <cmd>     # Run CLI commands (see runbook for details)
+pnpm ngrok         # Start ngrok tunnel (for webhooks)
 pnpm kill:dev      # Kill dev servers (port cleanup)
 ```
+
+## Environment Assumptions
+
+- **OS**: macOS, Linux, or WSL (Windows Subsystem for Linux)
+- **Node.js**: v20+ (`node --version` to check)
+- **pnpm**: v9+ (`pnpm --version` to check; install with `npm install -g pnpm`)
+- **Terminal**: Any bash-compatible shell
+- **Ports**: 3000 (web) and 3001 (api) available

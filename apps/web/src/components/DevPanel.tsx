@@ -224,7 +224,7 @@ export function DevPanel() {
         {/* Header */}
         <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 sticky top-0">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-sm">Multi-Context Demo</span>
+            <span className="font-semibold text-sm">Dev Panel</span>
             <span className="text-xs bg-blue-600 px-2 py-0.5 rounded">
               LaunchDarkly
             </span>
@@ -282,40 +282,6 @@ export function DevPanel() {
           </div>
         </div>
 
-        {/* Device Context */}
-        <div className="p-4 border-b border-slate-700">
-          <div className="text-xs text-slate-400 uppercase tracking-wide mb-2">
-            📱 Device Context
-          </div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-medium">{currentDevice.label}</span>
-            <span className="text-xs bg-slate-700 px-2 py-0.5 rounded">
-              {currentDevice.deviceType}
-            </span>
-            <span className="text-xs text-slate-400">{currentDevice.os}</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {MOCK_DEVICES.map((device) => (
-              <button
-                key={device.key}
-                onClick={() => updateContext(currentUser, device, currentOrg)}
-                disabled={isLoading || device.key === currentDevice.key}
-                className={`
-                  text-xs px-2 py-1 rounded transition-colors
-                  ${
-                    device.key === currentDevice.key
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 hover:bg-slate-600 text-slate-200"
-                  }
-                  disabled:opacity-50
-                `}
-              >
-                {device.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Organization Context */}
         <div className="p-4 border-b border-slate-700">
           <div className="text-xs text-slate-400 uppercase tracking-wide mb-2">
@@ -348,6 +314,40 @@ export function DevPanel() {
                 `}
               >
                 {org.orgName}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Device Context */}
+        <div className="p-4 border-b border-slate-700">
+          <div className="text-xs text-slate-400 uppercase tracking-wide mb-2">
+            📱 Device Context
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-medium">{currentDevice.label}</span>
+            <span className="text-xs bg-slate-700 px-2 py-0.5 rounded">
+              {currentDevice.deviceType}
+            </span>
+            <span className="text-xs text-slate-400">{currentDevice.os}</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {MOCK_DEVICES.map((device) => (
+              <button
+                key={device.key}
+                onClick={() => updateContext(currentUser, device, currentOrg)}
+                disabled={isLoading || device.key === currentDevice.key}
+                className={`
+                  text-xs px-2 py-1 rounded transition-colors
+                  ${
+                    device.key === currentDevice.key
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-700 hover:bg-slate-600 text-slate-200"
+                  }
+                  disabled:opacity-50
+                `}
+              >
+                {device.label}
               </button>
             ))}
           </div>
